@@ -14,6 +14,15 @@ self-contained and does not reuse any source files from the original editor code
 * Build an in-memory scene graph containing terrain tiles and placed objects.
 * Export the resulting scene into JSON, including terrain layout, heights, and object metadata.
 
+## What MuExporter Does **Not** Provide
+
+MuExporter focuses solely on loading a scene definition and exporting it to a portable
+representation for downstream tooling. It does **not** bundle a renderer or any visualization
+layer, so you cannot preview the map inside MuExporter the way the original
+``wodegongjubao`` editor renders a scene. To inspect the output you must either ingest the
+generated JSON in your own viewer or continue using the editor project for real-time
+visualization.
+
 ## Building
 
 The project can be built with any C++20 compiler. A convenience CMake configuration is provided.

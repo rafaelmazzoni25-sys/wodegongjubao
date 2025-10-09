@@ -1,6 +1,7 @@
 #include "MuExporter/PluginManager.hpp"
 #include "MuExporter/SceneExporter.hpp"
 #include "MuExporter/SceneIO.hpp"
+#include "MuExporter/SceneVisualizer.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -18,6 +19,9 @@ struct CommandLineOptions {
     std::filesystem::path mapDirectory;
     std::string mapFile;
     std::optional<std::filesystem::path> output;
+    bool visualize = false;
+    bool visualizeOnly = false;
+    VisualizationOptions visualizationOptions;
 };
 
 CommandLineOptions parseArguments(int argc, char **argv) {
@@ -32,12 +36,25 @@ CommandLineOptions parseArguments(int argc, char **argv) {
             options.mapFile = argv[++i];
         } else if (arg == "--output" && i + 1 < argc) {
             options.output = std::filesystem::path(argv[++i]);
+        } else if (arg == "--visualize") {
+            options.visualize = true;
+        } else if (arg == "--visualize-only") {
+            options.visualize = true;
+            options.visualizeOnly = true;
+        } else if (arg == "--no-object-overlay") {
+            options.visualizationOptions.showObjects = false;
+        } else if (arg == "--preview-width" && i + 1 < argc) {
+            options.visualizationOptions.maxWidth = static_cast<std::size_t>(std::stoul(argv[++i]));
         } else if (arg == "--help" || arg == "-h") {
             throw std::runtime_error("MuExporter usage:\n"
                                      "  --plugins <dir>   Directory containing *.plug descriptors\n"
                                      "  --maps <dir>      Directory containing map files\n"
                                      "  --map <file>      Map file to export\n"
-                                     "  [--output <file>] Optional output file (stdout when omitted)");
+                                     "  [--output <file>] Optional output file (stdout when omitted)\n"
+                                     "  [--visualize]     Print an ASCII preview of the scene\n"
+                                     "  [--visualize-only]Preview without exporting JSON\n"
+                                     "  [--no-object-overlay] Hide objects in the preview\n"
+                                     "  [--preview-width <n>] Clamp preview width to N characters");
         }
     }
 
@@ -93,10 +110,17 @@ int main(int argc, char **argv) {
         auto importer = factory.create(*descriptor);
         Scene scene = importer->importScene(mapPath);
 
-        if (options.output) {
-            SceneExporter::writeJson(scene, *options.output);
-        } else {
-            SceneExporter::writeJson(scene, std::cout);
+        if (options.visualize) {
+            const auto preview = renderScenePreview(scene, options.visualizationOptions);
+            std::cout << preview << "\n";
+        }
+
+        if (!options.visualizeOnly) {
+            if (options.output) {
+                SceneExporter::writeJson(scene, *options.output);
+            } else {
+                SceneExporter::writeJson(scene, std::cout);
+            }
         }
 
         return 0;

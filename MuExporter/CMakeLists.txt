@@ -10,7 +10,8 @@ add_executable(muexporter
     src/PluginManager.cpp
     src/Scene.cpp
     src/SoulSceneImporter.cpp
-    src/SceneExporter.cpp)
+    src/SceneExporter.cpp
+    src/SceneVisualizer.cpp)
 
 target_include_directories(muexporter PRIVATE include)
 

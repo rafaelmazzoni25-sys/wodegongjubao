@@ -12,16 +12,8 @@ self-contained and does not reuse any source files from the original editor code
 * Parse a minimal MuOnline-inspired terrain and object format (``.scene``) implemented by the
   built-in SoulScene importer.
 * Build an in-memory scene graph containing terrain tiles and placed objects.
+* Preview the scene directly in the terminal through a configurable ASCII heightmap renderer.
 * Export the resulting scene into JSON, including terrain layout, heights, and object metadata.
-
-## What MuExporter Does **Not** Provide
-
-MuExporter focuses solely on loading a scene definition and exporting it to a portable
-representation for downstream tooling. It does **not** bundle a renderer or any visualization
-layer, so you cannot preview the map inside MuExporter the way the original
-``wodegongjubao`` editor renders a scene. To inspect the output you must either ingest the
-generated JSON in your own viewer or continue using the editor project for real-time
-visualization.
 
 ## Building
 
@@ -62,6 +54,25 @@ stdout when ``--output`` is omitted.
 The repository ships with a minimal plugin descriptor (``soul_scene.plug``) and a sample
 ``devias.scene`` map file illustrating how the importer understands terrain and object data. You
 can inspect and modify these files to experiment with the exporter.
+
+## Scene Visualization
+
+Pass ``--visualize`` to print a textual heightmap preview after the scene is loaded. The preview
+marks objects with ``O`` (or ``+`` when multiple objects share a tile) and lists their names in a
+legend. Additional flags allow you to fine-tune the visualization:
+
+* ``--visualize-only`` – skip JSON export and only display the preview.
+* ``--no-object-overlay`` – omit object markers from the heightmap.
+* ``--preview-width <n>`` – clamp the preview to at most ``n`` characters wide (useful for narrow
+  terminals).
+
+```bash
+./muexporter \
+  --plugins data/plugins \
+  --maps data/maps \
+  --map devias.scene \
+  --visualize
+```
 
 ## Scene File Format
 
